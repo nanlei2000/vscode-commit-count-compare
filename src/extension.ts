@@ -6,27 +6,44 @@ export function activate() {
     9999
   );
   const folders = vscode.workspace.workspaceFolders;
-  // if (!folders) {
-  //   return;
-  // }
-  const rootPath = folders![0].uri.path;
-  console.log('→: activate -> rootPath', rootPath);
-  const pattern = new vscode.RelativePattern(rootPath, '**/*');
-  // const watcher = vscode.workspace.createFileSystemWatcher(pattern);
-
-  // watcher.onDidChange(() => {
-  //   updateStatus();
-  // });
-  // vscode.workspace.onDidChangeConfiguration(() => {
-  //   updateStatus();
-  // });
+  if (!folders) {
+    return;
+  }
+  const rootPath = folders[0].uri.path;
+  const pattern = new vscode.RelativePattern(rootPath, '.git/HEAD');
+  const watcher = vscode.workspace.createFileSystemWatcher(pattern);
+  /**
+   *  "commitCountCompare.comparedBranch": {
+            "type": "string",
+            "default": "dev",
+            "description": "Branch which `head` compared to"
+          }
+   */
+  function getComparedBranch(): string {
+    let config = vscode.workspace.getConfiguration('commitCountCompare');
+    const maxCountEachType = config.get<string>('comparedBranch');
+    return maxCountEachType || 'dev';
+  }
+  watcher.onDidChange(() => {
+    updateStatus();
+  });
+  vscode.workspace.onDidChangeConfiguration(() => {
+    updateStatus();
+  });
   updateStatus();
 
   async function updateStatus(): Promise<void> {
-    const res = await getCount(rootPath, 'master');
-    console.log('→: activate -> res', res);
-    // const maxCountEachType = getMaxCountFromConfig();
-    // status.show();
+    const branch = getComparedBranch();
+    const res = await getCount(rootPath, branch);
+    if (!res) {
+      status.hide();
+    } else {
+      const diff = res.head - res.compared;
+      status.text = `${Math.abs(diff)}${
+        diff > 0 ? '+' : diff === 0 ? '' : '-'
+      } (${branch})`;
+      status.show();
+    }
   }
 }
 
