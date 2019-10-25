@@ -2,6 +2,7 @@
   "name": "commit-count-compare",
   "displayName": "commit-count-compare",
   "description": "todo",
+  "publisher": "nanlei",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.39.0"
@@ -20,7 +21,7 @@
         "properties": {
           "commitCountCompare.comparedBranch": {
             "type": "string",
-            "default": "dev",
+            "default": "master",
             "description": "Branch which `head` compares to"
           }
         }

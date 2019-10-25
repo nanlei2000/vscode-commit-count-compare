@@ -10,7 +10,7 @@ export function activate() {
     return;
   }
   const rootPath = folders[0].uri.path;
-  const pattern = new vscode.RelativePattern(rootPath, '.git/HEAD');
+  const pattern = new vscode.RelativePattern(rootPath, '.git/logs/HEAD');
   const watcher = vscode.workspace.createFileSystemWatcher(pattern);
   /**
    *  "commitCountCompare.comparedBranch": {
@@ -22,7 +22,7 @@ export function activate() {
   function getComparedBranch(): string {
     let config = vscode.workspace.getConfiguration('commitCountCompare');
     const maxCountEachType = config.get<string>('comparedBranch');
-    return maxCountEachType || 'dev';
+    return maxCountEachType || 'master';
   }
   watcher.onDidChange(() => {
     updateStatus();
